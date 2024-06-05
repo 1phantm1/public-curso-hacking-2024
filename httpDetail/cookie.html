@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+</head>
+<body>
+<script>
+    function encryptString(data, secretKey) {
+        const encryptedData = CryptoJS.AES.encrypt(data, secretKey).toString();
+        return encryptedData;
+    }
+
+    function decryptString(encryptedString, secretKey) {
+        const decryptedBytes = CryptoJS.AES.decrypt(encryptedString, secretKey);
+        const decryptedString = decryptedBytes.toString(CryptoJS.enc.Utf8);
+        return decryptedString;
+    }
+
+    function checkCookieAndDecrypt(name, value, expires, path, secretKey) {
+        const cookies = document.cookie.split(";");
+
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            if (
+                cookie.includes(name + "=" + value) &&
+                cookie.includes("expires=" + expires) &&
+                cookie.includes("path=" + path)
+            ) {
+                const encryptedValue = cookie.split("=")[1];
+
+                // Descriptografa o valor do cookie
+                const decryptedValue = decryptString(encryptedValue, secretKey);
+
+                console.log("Flag descriptografada:", decryptedValue);
+                break; // Parar o loop após encontrar o cookie
+            }
+        }
+    }
+
+    // Chave secreta para criptografia e descriptografia (deve ser mantida em segredo)
+    const secretKey = "chaveSuperSecreta123"; 
+
+    // String a ser criptografada
+    const data = "flag{2MfYT3K2o0DtraprnYoPngt7jF0n5sNLDxmHfWb92A}";
+
+    // Criptografa a string
+    const encryptedData = encryptString(data, secretKey);
+
+    console.log("Dados criptografados:", encryptedData);
+
+    // Simulação de cookie válido (suponha que seja verdadeiro)
+    const cookieValido = true;
+
+    if (cookieValido) {
+        // Verificação e descriptografia do cookie
+        const name = "user";
+        const value = "Alice";
+        const expires = "Fri, 16 Apr 2024 12:00:00 UTC";
+        const path = "/";
+
+        checkCookieAndDecrypt(name, value, expires, path, secretKey);
+    } else {
+        console.log("Cookie inválido. Não é possível descriptografar os dados.");
+    }
+</script>
+
+</body>
+</html>
